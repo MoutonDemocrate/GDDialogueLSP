@@ -1,0 +1,15 @@
+{
+  "name": "gddialogue-lsp-server",
+  "description": "GD Dialogue Language Server",
+  "version": "1.0.0",
+  "author": "MoutonDemocrate",
+  "license": "GPL-3.0",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "scripts": {}
+}

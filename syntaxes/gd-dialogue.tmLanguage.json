@@ -1,0 +1,358 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "GDDialogue",
+	"patterns": [
+		{
+			"include": "#import"
+		},
+		{
+			"include": "#using"
+		},
+		{
+			"include": "#titles"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#characters"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#tags"
+		},
+		{
+			"include": "#bbcode"
+		},
+		{
+			"include": "#random"
+		},
+		{
+			"include": "#concurrent"
+		},
+		{
+			"include": "#mutations"
+		},
+		{
+			"include": "#choices"
+		},
+		{
+			"include": "#jumps"
+		}
+	],
+	"repository": {
+		"import": {
+			"patterns": [{
+				"name": "keyword.control.import.gd-dialogue",
+				"match": "^\\s*(import)\\s+\"([^\"]+)\"\\s+(as)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+				"captures": {
+					"1": { "name": "keyword.control.import.gd-dialogue" },
+					"2": { "name": "string.quoted.double.gd-dialogue" },
+					"3": { "name": "keyword.control.as.gd-dialogue" },
+					"4": { "name": "entity.name.namespace.gd-dialogue" }
+				}
+			}]
+		},
+		"using": {
+			"patterns": [{
+				"name": "keyword.control.using.gd-dialogue",
+				"match": "^\\s*(using)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+				"captures": {
+					"1": { "name": "keyword.control.using.gd-dialogue" },
+					"2": { "name": "entity.name.namespace.gd-dialogue" }
+				}
+			}]
+		},
+		"titles": {
+			"patterns": [{
+				"name": "entity.name.section.gd-dialogue",
+				"match": "^\\s*~\\s*([A-Za-z_][A-Za-z0-9_]*)"
+			}]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.flow.gd-dialogue",
+					"match": "^\\s*(if|elif|else|endif|while|endwhile|match|when|do|set)\\b"
+				},
+				{
+					"name": "keyword.operator.gd-dialogue",
+					"match": "\\b(and|or|not|in|\\?\\.|==|!=|>=|<=|>|<|\\+|-|\\*|\\/|%)\\b"
+				},
+				{
+					"name": "constant.language.gd-dialogue",
+					"match": "\\b(true|false|null|END)\\b"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.gd-dialogue",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.gd-dialogue",
+							"match": "\\\\."
+						},
+						{
+							"include": "#bbcode"
+						},
+						{
+							"include": "#variables"
+						}
+					]
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.number-sign.gd-dialogue",
+					"match": "#.*$"
+				}
+			]
+		},
+		"characters": {
+			"patterns": [
+				{
+					"name": "meta.dialogue.line.gd-dialogue",
+					"begin": "^\\s*([^:\\n]+)\\s*:",
+					"end": "$",
+					"beginCaptures": {
+						"1": { "name": "entity.name.tag.gd-dialogue" }
+					},
+					"patterns": [
+						{ "include": "#bbcode" },
+						{ "include": "#variables" },
+						{
+							"match": "[^\\[\\{]+",
+							"name": "meta.dialogue-text.gd-dialogue"
+						}
+					]
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.other.gd-dialogue",
+					"match": "\\{\\{([^}]+)\\}\\}"
+				}
+			]
+		},
+		"tags": {
+			"patterns": [
+				{
+					"name": "meta.tag.gd-dialogue",
+					"match": "\\[#([^\\]]+)\\]",
+					"captures": {
+						"1": { "name": "string.other.tag.gd-dialogue" }
+					}
+				}
+			]
+		},
+		"bbcode": {
+			"patterns": [
+				{
+					"name": "meta.tag.bbcode.gd-dialogue",
+					"begin": "\\[(/?)(\\w+)\\]",
+					"end": "(?=[\\[<]|$)",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.tag.bbcode.gd-dialogue" },
+						"1": { "name": "punctuation.definition.tag.close.bbcode.gd-dialogue" },
+						"2": { "name": "entity.name.tag.bbcode.gd-dialogue" }
+					},
+					"contentName": "markup.bold.bbcode.gd-dialogue"
+				},
+				{
+					"name": "meta.tag.bbcode.with-value.gd-dialogue",
+					"begin": "\\[(\\w+)\\s*",
+					"end": "\\]",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.tag.begin.bbcode.gd-dialogue" },
+						"1": { "name": "entity.name.tag.bbcode.gd-dialogue" }
+					},
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.tag.end.bbcode.gd-dialogue" }
+					},
+					"patterns": [
+						{
+							"match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(=)\\s*([^\\s\\]]+)",
+							"captures": {
+								"1": { "name": "entity.other.attribute-name.bbcode.gd-dialogue" },
+								"2": { "name": "punctuation.separator.key-value.bbcode.gd-dialogue" },
+								"3": { "name": "constant.numeric.bbcode.gd-dialogue" }
+							}
+						}
+					]
+				},
+				{
+					"name": "meta.tag.bbcode.random.gd-dialogue",
+					"begin": "\\[\\[",
+					"end": "\\]\\]",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.random.begin.bbcode.gd-dialogue" }
+					},
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.random.end.bbcode.gd-dialogue" }
+					},
+					"patterns": [
+						{
+							"match": "[^|\\]]+",
+							"name": "string.other.random.option.bbcode.gd-dialogue"
+						},
+						{
+							"match": "\\|",
+							"name": "punctuation.separator.random.bbcode.gd-dialogue"
+						}
+					]
+				}
+			]
+		},
+		"random": {
+			"patterns": [
+				{
+					"name": "keyword.control.random.gd-dialogue",
+					"match": "^\\s*%(\\d+)?\\s+"
+				}
+			]
+		},
+		"concurrent": {
+			"patterns": [
+				{
+					"name": "keyword.control.concurrent.gd-dialogue",
+					"match": "^\\s*\\|\\s+"
+				}
+			]
+		},
+		"mutations": {
+			"patterns": [
+				{
+					"name": "meta.mutation.gd-dialogue",
+					"begin": "^\\s*(do|set)\\s+",
+					"end": "$",
+					"beginCaptures": {
+						"1": { "name": "entity.name.tag.gd-dialogue" }
+					},
+					"patterns": [
+						{
+							"match": "([A-Za-z_][A-Za-z0-9_]*)(?:(\\.)([A-Za-z_][A-Za-z0-9_]*))?\\s*(?:\\([^)]*\\))?",
+							"captures": {
+								"1": { "name": "entity.name.tag.gd-dialogue" },
+								"2": { "name": "punctuation.accessor.dot.gd-dialogue" },
+								"3": { "name": "entity.other.attribute-name.gd-dialogue" }
+							}
+						},
+						{ "include": "#gdscript-expression" }
+					]
+				},
+				{
+					"name": "meta.mutation.inline.gd-dialogue",
+					"match": "\\[(do!?)\\s+([A-Za-z_][A-Za-z0-9_]*)(?:(\\.)([A-Za-z_][A-Za-z0-9_]*))?\\s*(?:(\\()([^)]*)\\))?\\]",
+					"captures": {
+						"1": { "name": "keyword.control.mutation.gd-dialogue" },
+						"2": { "name": "support.class.gd-dialogue" },
+						"3": { "name": "punctuation.accessor.gd-dialogue" },
+						"4": { "name": "entity.name.function.gd-dialogue" },
+						"5": { "name": "punctuation.section.arguments.begin.gd-dialogue" },
+						"6": { "name": "meta.function.arguments.gd-dialogue" }
+					}
+				}
+			]
+		},
+		"choices": {
+			"patterns": [
+				{
+					"name": "meta.choice.gd-dialogue",
+					"begin": "^(\\s*-\\s+)",
+					"end": "(?=\\s*(?:=>|\\[|$))",
+					"beginCaptures": {
+						"1": { "name": "entity.name.tag.gd-dialogue" }
+					},
+					"contentName": "entity.other.attribute-name.gd-dialogue",
+					"patterns": [
+						{ "include": "#bbcode" },
+						{ "include": "#variables" }
+					]
+				},
+				{
+					"begin": "\\[",
+					"end": "\\]",
+					"name": "meta.condition.choice.gd-dialogue",
+					"patterns": [
+						{
+							"match": "\\b(if)\\b",
+							"name": "keyword.control.conditional.gd-dialogue"
+						},
+						{ "include": "#gdscript-expression" }
+					]
+				},
+				{
+					"match": "(=>)\\s*([A-Za-z_][A-Za-z0-9_]*|END(!)?)",
+					"captures": {
+						"1": { "name": "keyword.control.jump.gd-dialogue" },
+						"2": { "name": "entity.name.section.jump.gd-dialogue" },
+						"3": { "name": "keyword.control.jump.modifier.gd-dialogue" }
+					}
+				}
+			]
+		},
+		"jumps": {
+			"patterns": [
+				{
+					"name": "keyword.control.jump.gd-dialogue",
+					"match": "^\\s*=>(<?!?)\\s+([A-Za-z_][A-Za-z0-9_]*|END(!)?|\\{\\{[^}]+\\}\\})",
+					"captures": {
+						"1": { "name": "keyword.control.jump.modifier.gd-dialogue" },
+						"2": { "name": "entity.name.section.jump.gd-dialogue" },
+						"3": { "name": "keyword.control.jump.modifier.gd-dialogue" }
+					}
+				}
+			]
+		},
+		"gdscript-expression": {
+			"patterns": [
+				{
+					"match": "\\b(true|false|null)\\b",
+					"name": "constant.language.gd-dialogue"
+				},
+				{
+					"match": "\\b\\d+(\\.\\d+)?\\b",
+					"name": "constant.numeric.gd-dialogue"
+				},
+				{
+					"match": "\\b(and|or|not|in)\\b",
+					"name": "keyword.operator.logical.gd-dialogue"
+				},
+				{
+					"match": "[+\\-*/%=<>!&|]+",
+					"name": "keyword.operator.gd-dialogue"
+				},
+				{
+					"begin": "\"",
+					"end": "\"",
+					"name": "string.quoted.double.gd-dialogue"
+				},
+				{
+					"match": "([A-Za-z_][A-Za-z0-9_]*)(?:(\\.)([A-Za-z_][A-Za-z0-9_]*))?\\s*(?:\\([^)]*\\))?",
+					"captures": {
+						"1": { "name": "entity.name.tag.gd-dialogue" },
+						"2": { "name": "punctuation.accessor.dot.gd-dialogue" },
+						"3": { "name": "entity.other.attribute-name.gd-dialogue" }
+					}
+				}
+			]
+		}
+	},
+	"scopeName": "source.gd-dialogue"
+}
