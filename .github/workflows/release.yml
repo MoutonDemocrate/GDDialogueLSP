@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write   # Allow release creation
+
 jobs:
   release:
     if: startsWith(github.event.head_commit.message, '[RELEASE]')
