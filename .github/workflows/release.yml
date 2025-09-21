@@ -27,34 +27,12 @@ jobs:
       - name: Build VSIX
         run: vsce package
 
-      - name: Get version from package.json
-        id: get_version
-        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
-
-      - name: Get previous tag
-        id: get_prev_tag
-        run: |
-          prev_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "prev_tag=$prev_tag" >> $GITHUB_OUTPUT
-
-      - name: Generate changelog
-        id: changelog
-        run: |
-          if [ -z "${{ steps.get_prev_tag.outputs.prev_tag }}" ]; then
-            log=$(git log --pretty=format:"### %s%n%b%n" --no-merges)
-          else
-            log=$(git log ${{ steps.get_prev_tag.outputs.prev_tag }}..HEAD --pretty=format:"### %s%n%b%n" --no-merges)
-          fi
-          echo "log<<EOF" >> $GITHUB_OUTPUT
-          echo "$log" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: Release v${{ steps.get_version.outputs.version }}
-          body: ${{ steps.changelog.outputs.log }}
+          tag_name: release-${{ github.sha }}
+          name: Release from commit ${{ github.sha }}
+          body: ${{ github.event.head_commit.message }}
           files: "*.vsix"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
