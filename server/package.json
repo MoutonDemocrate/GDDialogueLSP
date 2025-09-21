@@ -3,6 +3,7 @@
   "description": "GD Dialogue Language Server",
   "version": "1.0.0",
   "author": "MoutonDemocrate",
+  "repository":"https://github.com/MoutonDemocrate/GDDialogueLSP",
   "license": "GPL-3.0",
   "engines": {
     "node": "*"
