@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: write   # Allow release creation
+  contents: write   # Necessary for GitHub Releases
 
 jobs:
   release:
@@ -39,3 +39,6 @@ jobs:
           files: "*.vsix"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to OpenVSX
+        run: npx ovsx publish *.vsix -p ${{ secrets.OPENVSX_TOKEN }}
