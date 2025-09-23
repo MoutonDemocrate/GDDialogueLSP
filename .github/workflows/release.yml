@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    if: startsWith(github.event.head_commit.message, '[RELEASE]')
+    if: startsWith(github.event.head_commit.message, '[')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -24,18 +24,38 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install VSCE
-        run: npm install -g @vscode/vsce
+      - name: Install VSCE & OVSX
+        run: npm install -g @vscode/vsce ovsx
 
       - name: Build VSIX
         run: vsce package
 
+      - name: Parse commit message
+        id: parse
+        run: |
+          msg="${GITHUB_EVENT_HEAD_COMMIT_MESSAGE:-${{ github.event.head_commit.message }}}"
+
+          # Expected format: [TAG](VERSION) VERSION_NAME
+          tag=$(echo "$msg" | sed -n 's/^\[\([^]]*\)\](.*).*$/\1/p')
+          version=$(echo "$msg" | sed -n 's/^\[[^]]*\](\([^)]*\)).*$/\1/p')
+          version_name=$(echo "$msg" | sed -n 's/^\[[^]]*\](.*) \(.*\)$/\1/p')
+
+          echo "tag=$tag" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+
+          # Full description body
+          body="${msg}\nAutorelease from commit ${{ github.sha }}"
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: release-${{ github.sha }}
-          name: Release from commit ${{ github.sha }}
-          body: ${{ github.event.head_commit.message }}
+          tag_name: ${{ steps.parse.outputs.tag }}
+          name: ${{ steps.parse.outputs.version }} :: ${{ steps.parse.outputs.version_name }}
+          body: ${{ steps.parse.outputs.body }}
           files: "*.vsix"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
