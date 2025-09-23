@@ -2,7 +2,7 @@
   "name": "gddialoguemanager-lsp",
   "displayName": "Godot Dialogue Manager",
   "description": "A lightweight LSP extension for nathanhoad's dialogue manager addon for Godot 4+",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "moutondemocrate",
   "author": "MoutonDemocrate",
   "repository": {

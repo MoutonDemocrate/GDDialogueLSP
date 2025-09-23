@@ -27,6 +27,8 @@ https://github.com/nathanhoad/godot_dialogue_manager
 
 ## Release Notes
 
+### 0.0.4 :: GitHub autorelease workflow
+
 ### 0.0.3 :: Added a description and an icon
 
 Made in GIMP 3.1, I think.
