@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: write   # Necessary for GitHub Releases
+  contents: write   # Allow creating releases
 
 jobs:
   release:
@@ -33,28 +33,37 @@ jobs:
       - name: Parse commit message
         id: parse
         run: |
-          msg="${GITHUB_EVENT_HEAD_COMMIT_MESSAGE:-${{ github.event.head_commit.message }}}"
+          # Use the full commit message provided by GitHub
+          msg="${{ github.event.head_commit.message }}"
 
-          # Expected format: [TAG](VERSION) VERSION_NAME
-          tag=$(echo "$msg" | sed -n 's/^\[\([^]]*\)\](.*).*$/\1/p')
-          version=$(echo "$msg" | sed -n 's/^\[[^]]*\](\([^)]*\)).*$/\1/p')
-          version_name=$(echo "$msg" | sed -n 's/^\[[^]]*\](.*) \(.*\)$/\1/p')
+          # Take the first line (subject) which should be: [TAG](X.Y.Z) Version Name
+          subject=$(printf "%s\n" "$msg" | head -n1)
 
-          echo "tag=$tag" >> $GITHUB_OUTPUT
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+          # Match: [TAG](MAJOR.MINOR.PATCH) Version Name
+          if [[ $subject =~ ^\[(RELEASE|PATCH)\]\(([0-9]+\.[0-9]+\.[0-9]+)\)[[:space:]]+(.+)$ ]]; then
+            tag="${BASH_REMATCH[1]}"
+            version="${BASH_REMATCH[2]}"
+            version_name="${BASH_REMATCH[3]}"
+          else
+            echo "Commit subject does not match expected format: [TAG](X.Y.Z) Version Name" >&2
+            exit 1
+          fi
 
-          # Full description body
-          body="${msg}\nAutorelease from commit ${{ github.sha }}"
-          echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$body" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Export outputs
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+
+          # Create multiline body: full commit message + autorelease line
+          echo "body<<EOF" >> "$GITHUB_OUTPUT"
+          printf "%s\n\nAutorelease from commit %s\n" "$msg" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.parse.outputs.tag }}
-          name: ${{ steps.parse.outputs.version }} :: ${{ steps.parse.outputs.version_name }}
+          name: "${{ steps.parse.outputs.version }} :: ${{ steps.parse.outputs.version_name }}"
           body: ${{ steps.parse.outputs.body }}
           files: "*.vsix"
         env:
