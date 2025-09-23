@@ -29,6 +29,8 @@ https://github.com/nathanhoad/godot_dialogue_manager
 
 ### 0.0.4 :: GitHub autorelease workflow
 
+I love workflows in concept but everytime I have to use YAML for this I lose a few weeks of my lifespan
+
 ### 0.0.3 :: Added a description and an icon
 
 Made in GIMP 3.1, I think.
